@@ -44,6 +44,7 @@ extern CALIBRATED_SENSOR_t brake1;
 extern CALIBRATED_SENSOR_t brake2;
 extern CALIBRATED_SENSOR_t brake;
 extern volatile uint32_t torque_percentage;
+extern volatile uint32_t launch_control_param;
 
 typedef enum {
 	APPS1,

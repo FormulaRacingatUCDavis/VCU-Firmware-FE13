@@ -58,6 +58,7 @@ extern volatile uint16_t motor_temp;
 extern volatile uint16_t mc_temp;
 extern volatile int16_t glv_v;
 
+extern volatile int16_t motor_speed;
 extern volatile uint16_t rear_right_wheel_speed;
 extern volatile uint16_t rear_left_wheel_speed;
 extern volatile uint16_t front_right_wheel_speed;
@@ -70,6 +71,8 @@ extern volatile int16_t outlet_pres;
 extern volatile uint16_t telem_id;
 extern volatile uint16_t sg_rear;
 extern volatile uint16_t max_power;
+extern volatile uint16_t acc_current_adc;
+extern volatile uint16_t acc_current_ref_adc;
 
 // extern CAN_RxHeaderTypeDef RxHeader;
 // extern uint8_t RxData[8];
