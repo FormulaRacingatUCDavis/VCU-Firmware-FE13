@@ -437,3 +437,34 @@ void can_tx_throttle_raw(CAN_HandleTypeDef *hcan) {
 	  print("CAN Tx failed\r\n");
 	}
 }
+
+void can_tx_power(CAN_HandleTypeDef *hcan) {
+	TxHeader.IDE = CAN_ID_STD;
+	TxHeader.StdId = MC_AC_POWER;
+	TxHeader.RTR = CAN_RTR_DATA;
+	TxHeader.DLC = 8;
+
+	// TODO temp: Log power for power limiter debugging
+	float acc_current_amps = mvolts_to_amps(raw_to_mvolts(acc_current_adc), raw_to_mvolts(acc_current_ref_adc));
+	float acc_voltage_volt = pack_voltage * 0.018 + 180;
+
+	float acc_power = acc_current_amps*acc_voltage_volt;
+
+	int32_t motor_power = requested_throttle() / 10 * motor_speed * 0.10472; // 0.10472 = RADS_PER_RPM (conversion)
+
+	int8_t data[8] = {
+			(motor_power >> 24) & 0xFF,
+			(motor_power >> 16) & 0xFF,
+			(motor_power >> 8) & 0xFF,
+			motor_power & 0xFF,
+			(((int32_t)acc_power) >> 24) & 0xFF,
+			(((int32_t)acc_power) >> 16) & 0xFF,
+			(((int32_t)acc_power) >> 8) & 0xFF,
+			((int32_t)acc_power) & 0xFF,
+	};
+
+	if (HAL_CAN_AddTxMessage(hcan, &TxHeader, data, &TxMailbox) != HAL_OK)
+	{
+	  print("CAN Tx failed\r\n");
+	}
+}
