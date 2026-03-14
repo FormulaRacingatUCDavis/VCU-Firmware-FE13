@@ -35,6 +35,8 @@ extern volatile uint16_t acc_current_ref_adc;
 extern volatile int16_t pack_voltage;
 extern volatile uint8_t soc;
 
+volatile uint32_t lv_battery_measure_adc = 0;
+
 uint16_t get_max_torque(uint32_t max_power);
 uint32_t get_max_power();
 //extern void Error_Handler();
@@ -64,7 +66,7 @@ void select_adc_channel(ADC_HandleTypeDef *hadc, ADC_CHAN channel)
 {
     ADC_ChannelConfTypeDef sConfig = {0};
     sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
-    switch (channel) // TODO CHECK THESE CHANNELS, PROB WRONG
+    switch (channel)
     {
         case APPS1:
             sConfig.Channel = ADC_CHANNEL_10;
@@ -110,6 +112,14 @@ void select_adc_channel(ADC_HandleTypeDef *hadc, ADC_CHAN channel)
 			break;
         case KNOB2:
 			sConfig.Channel = ADC_CHANNEL_12;
+			sConfig.Rank = 1;
+			if (HAL_ADC_ConfigChannel(hadc, &sConfig) != HAL_OK)
+			{
+//				Error_Handler();
+			}
+			break;
+        case LV_BAT_MEASURE:
+        	sConfig.Channel = ADC_CHANNEL_5;
 			sConfig.Rank = 1;
 			if (HAL_ADC_ConfigChannel(hadc, &sConfig) != HAL_OK)
 			{
@@ -166,6 +176,10 @@ void update_sensor_vals(ADC_HandleTypeDef *hadc1, ADC_HandleTypeDef *hadc3) {
 	prev_launch_control_param = launch_control_param;
     torque_percentage = get_adc_conversion(hadc1, KNOB2) * 100 / 4095;
     launch_control_param = get_adc_conversion(hadc1, KNOB1) * 100 / 4095;
+}
+
+void read_lv_battery(ADC_HandleTypeDef *hadc3) {
+	lv_battery_measure_adc = get_adc_conversion(hadc3, LV_BAT_MEASURE);
 }
 
 static float raw_to_mvolts(uint16_t adc_raw) {

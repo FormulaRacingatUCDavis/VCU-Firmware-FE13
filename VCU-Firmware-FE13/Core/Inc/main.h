@@ -68,6 +68,8 @@ uint8_t traction_control_enable();
 #define BSE_F_GPIO_Port GPIOF
 #define HARD_BSPD_Pin GPIO_PIN_6
 #define HARD_BSPD_GPIO_Port GPIOF
+#define LV_BAT_MEASURE_Pin GPIO_PIN_7
+#define LV_BAT_MEASURE_GPIO_Port GPIOF
 #define EXTRA_SENS2_Pin GPIO_PIN_9
 #define EXTRA_SENS2_GPIO_Port GPIOF
 #define APP2_Pin GPIO_PIN_10
@@ -94,8 +96,6 @@ uint8_t traction_control_enable();
 #define PCAN_RX_GPIO_Port GPIOA
 #define PCAN_TX_Pin GPIO_PIN_12
 #define PCAN_TX_GPIO_Port GPIOA
-#define VBAT_MEASURE_DONOTUSE_Pin GPIO_PIN_6
-#define VBAT_MEASURE_DONOTUSE_GPIO_Port GPIOD
 #define BUTTON4_Pin GPIO_PIN_9
 #define BUTTON4_GPIO_Port GPIOG
 #define BUTTON3_Pin GPIO_PIN_10

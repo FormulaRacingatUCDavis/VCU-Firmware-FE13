@@ -45,13 +45,16 @@ extern CALIBRATED_SENSOR_t brake2;
 extern CALIBRATED_SENSOR_t brake;
 extern volatile uint32_t torque_percentage;
 
+extern volatile uint32_t lv_battery_measure_adc;
+
 typedef enum {
 	APPS1,
 	APPS2,
 	BSE1,
 	BSE2,
 	KNOB1,
-	KNOB2
+	KNOB2,
+	LV_BAT_MEASURE
 } ADC_CHAN;
 
 
