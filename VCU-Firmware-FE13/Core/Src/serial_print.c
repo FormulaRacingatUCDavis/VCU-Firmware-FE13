@@ -1,4 +1,5 @@
 #include "serial_print.h"
+#include <stdio.h>
 #include <string.h>
 #include "stm32f7xx_hal.h"
 #include "serial.h"
