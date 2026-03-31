@@ -48,6 +48,7 @@ void serial_print_vehicle_state(void) {
 			((shutdown_flags >> 2) & 1) ? "True" : "False",
 		    ((shutdown_flags >> 1) & 1) ? "True" : "False",
 		    (shutdown_flags & 1) ? "True" : "False");
+	print(buf);
 
 	print("DASHBOARD DISPLAY MODE:");
 
@@ -69,7 +70,7 @@ void serial_print_vehicle_state(void) {
 
 
 void serial_print_cooling(void) {
-	char buffer[64];
+	char buf[64];
 
 	print("==COOLING==");
 	snprintf(buf, sizeof(buf),
@@ -82,6 +83,7 @@ void serial_print_cooling(void) {
 }
 
 void serial_print_driver_input(void) {
+	char buf[128];
 	print("==DRIVER INPUT==");
 	snprintf(buf,sizeof(buf),
 			"ACC_CURRENT_ADC : %u A\n"
@@ -90,6 +92,7 @@ void serial_print_driver_input(void) {
 			"LAUNCH_CTRL_PARAM : %u A\n"
 			"TORQUE_PERCENTAGE : %u A\n",
 			acc_current_adc, acc_current_ref_adc, sg_rear, launch_control_param, torque_percentage);
+	print(buf);
 }
 //launch control param is undeclared in the header file???
 
@@ -99,7 +102,7 @@ void dump_can_data_battery() {
 
 	char buffer[100];
 
-	printf("BATTERY READINGS\n");
+	print("BATTERY READINGS\n");
 
 	sprintf(buffer, "SOC: %u%%\n", soc);
 	print(buffer);
@@ -150,7 +153,9 @@ void dump_can_data_battery() {
 	print(buffer);
 
 	sprintf(buffer, "ACC_CURRENT_REF_ADC %u\n", acc_current_ref_adc);
+	print(buffer);
 
+	// TODO FIX, ADD FUNCTIONS TO HEADER FILE AND INCLUDE
 	snprintf(buffer, "CURRENTS READING: %fA\n", sizeof(buffer), mvolts_to_amps(raw_to_mvolts(acc_current_adc), raw_to_mvolts(acc_current_ref_adc)));
 	print(buffer);
 
@@ -167,17 +172,17 @@ void dump_can_data_motor_controller() {
 	// prints all the motor controller related info
 	char buffer[100];
 
-	printf("MOTOR CONTROLLER INFO\n");
+	print("MOTOR CONTROLLER INFO\n");
 
 	if (mc_fault) {
 		sprintf(buffer, "MOTOR CONTROLLER FAULT\n");
 		print(buffer);
 	} else {
-		sprint(buffer, "NO MOTOR CONTROLLER FAULT\n");
+		sprintf(buffer, "NO MOTOR CONTROLLER FAULT\n");
 		print(buffer);
 	}
 
-	sprintf(buffer, "MOTOR CONTROLL TEMP: %uC\n", mc_temp);
+	sprintf(buffer, "MOTOR CONTROL TEMP: %uC\n", mc_temp);
 	print(buffer);
 
 	sprintf(buffer, "MOTOR SPEED: %drpm\n", motor_speed);
