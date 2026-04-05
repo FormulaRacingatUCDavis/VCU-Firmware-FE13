@@ -46,13 +46,16 @@ extern CALIBRATED_SENSOR_t brake;
 extern volatile uint32_t torque_percentage;
 extern volatile uint32_t launch_control_param;
 
+extern volatile uint32_t lv_battery_measure_adc;
+
 typedef enum {
 	APPS1,
 	APPS2,
 	BSE1,
 	BSE2,
 	KNOB1,
-	KNOB2
+	KNOB2,
+	LV_BAT_MEASURE
 } ADC_CHAN;
 
 
@@ -72,6 +75,9 @@ bool brake_mashed();
 
 void temp_attenuate();
 int16_t requested_throttle();
+
+float raw_to_mvolts(uint16_t adc_raw);
+float mvolts_to_amps(float mVolts, float mVolt_ref);
 
 int16_t clamp(int16_t in, int16_t min, int16_t max);
 void update_percent(CALIBRATED_SENSOR_t* sensor);

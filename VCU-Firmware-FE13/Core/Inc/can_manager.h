@@ -39,6 +39,7 @@ typedef enum {
 	STRAIN_GAUGE_REAR = 0x403,
 	MC_INTERNAL_CURRENTS = 0x0A6,
 	THROTTLE_RAW = 0x502,
+	MC_AC_POWER = 0x504
 } CAN_ID;
 
 extern volatile uint8_t mc_lockout;

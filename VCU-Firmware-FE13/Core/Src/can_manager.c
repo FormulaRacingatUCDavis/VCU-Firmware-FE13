@@ -398,38 +398,18 @@ void can_tx_knobs(CAN_HandleTypeDef *hcan) {
 		CAN_Send(hcan, 0x501, data, 8);
 }
 
-// TODO REMOVE LATER, FOR POWER LIMITER DEBUGGING
-static float raw_to_mvolts(uint16_t adc_raw) {
-    return ((float)adc_raw / 4095) * 3.3 * 1000;
-}
-static float mvolts_to_amps(float mVolts, float mVolt_ref) {
-    return ((mVolts - mVolt_ref) * 7.4 / 4.7) / 6.667;
-}
-
 
 void can_tx_throttle_raw(CAN_HandleTypeDef *hcan) {
 	TxHeader.IDE = CAN_ID_STD;
 	TxHeader.StdId = THROTTLE_RAW;
 	TxHeader.RTR = CAN_RTR_DATA;
-	TxHeader.DLC = 8;
+	TxHeader.DLC = 4;
 
-	// TODO temp: Log power for power limiter debugging
-	float acc_current_amps = mvolts_to_amps(raw_to_mvolts(acc_current_adc), raw_to_mvolts(acc_current_ref_adc));
-	float acc_voltage_volt = pack_voltage * 0.018 + 180;
-
-	float acc_power = acc_current_amps*acc_voltage_volt;
-
-	uint16_t motor_power = requested_throttle() / 10 * motor_speed * 0.10472; // 0.10472 = RADS_PER_RPM (conversion)
-
-	uint8_t data[8] = {
+	uint8_t data[4] = {
 			throttle1.raw >> 8,
 			throttle1.raw & 0xFF,
 			throttle2.raw >> 8,
 			throttle2.raw & 0xFF,
-			motor_power >> 8,
-			motor_power & 0xFF,
-			((uint16_t)acc_power) >> 8,
-			((uint16_t)acc_power) & 0xFF
 	};
 
 	if (HAL_CAN_AddTxMessage(hcan, &TxHeader, data, &TxMailbox) != HAL_OK)
@@ -437,3 +417,36 @@ void can_tx_throttle_raw(CAN_HandleTypeDef *hcan) {
 	  print("CAN Tx failed\r\n");
 	}
 }
+
+void can_tx_power(CAN_HandleTypeDef *hcan) {
+	TxHeader.IDE = CAN_ID_STD;
+	TxHeader.StdId = MC_AC_POWER;
+	TxHeader.RTR = CAN_RTR_DATA;
+	TxHeader.DLC = 8;
+
+	float acc_current_amps = mvolts_to_amps(raw_to_mvolts(acc_current_adc), raw_to_mvolts(acc_current_ref_adc));
+	float acc_voltage_volt = pack_voltage * 0.018 + 180;
+
+	float acc_power = acc_current_amps*acc_voltage_volt;
+
+	int32_t motor_power = requested_throttle() / 10 * motor_speed * 0.10472; // 0.10472 = RADS_PER_RPM (conversion)
+
+	int8_t data[8] = {
+			(motor_power >> 24) & 0xFF,
+			(motor_power >> 16) & 0xFF,
+			(motor_power >> 8) & 0xFF,
+			motor_power & 0xFF,
+			(((int32_t)acc_power) >> 24) & 0xFF,
+			(((int32_t)acc_power) >> 16) & 0xFF,
+			(((int32_t)acc_power) >> 8) & 0xFF,
+			((int32_t)acc_power) & 0xFF,
+	};
+
+	// cast to uint8* to avoid compiler warning, underlying bit pattern should stay the same
+	if (HAL_CAN_AddTxMessage(hcan, &TxHeader, (uint8_t*)data, &TxMailbox) != HAL_OK)
+	{
+	  print("CAN Tx failed\r\n");
+	}	
+}
+
+
