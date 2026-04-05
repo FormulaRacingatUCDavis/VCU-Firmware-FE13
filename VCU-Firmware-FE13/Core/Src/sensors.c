@@ -182,11 +182,11 @@ void read_lv_battery(ADC_HandleTypeDef *hadc3) {
 	lv_battery_measure_adc = get_adc_conversion(hadc3, LV_BAT_MEASURE);
 }
 
-static float raw_to_mvolts(uint16_t adc_raw) {
+float raw_to_mvolts(uint16_t adc_raw) {
     return ((float)adc_raw / 4095) * 3.3 * 1000;
 }
 
-static float mvolts_to_amps(float mVolts, float mVolt_ref) {
+float mvolts_to_amps(float mVolts, float mVolt_ref) {
     return ((mVolts - mVolt_ref) * 7.4 / 4.7) / 6.667;
 }
 
