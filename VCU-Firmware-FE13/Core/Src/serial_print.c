@@ -18,7 +18,7 @@ void print(const char *str) {
 		first_run = 0;
 	}
 
-	Serial_SendBytes(&serial, str, strlen(str), 20);
+	Serial_SendBytes(&serial, (const uint8_t*)str, strlen(str), 20);
 
 //	HAL_UART_Transmit(&huart3, str, strlen(str), 10);
 }
@@ -38,9 +38,9 @@ void serial_print_vehicle_state(void) {
 	snprintf(buf, sizeof(buf),
 			"IMD: %s\n"
 			"BMS: %s\n"
-			"SHUTDOWN_FINAL: %s\n",
-			"AIR_NEG: %s\n",
-			"AIR_POS: %s\n",
+			"SHUTDOWN_FINAL: %s\n"
+			"AIR_NEG: %s\n"
+			"AIR_POS: %s\n"
 			"PRECHARGE: %s\n",
 			((shutdown_flags >> 5) & 1) ? "True" : "False",
 			((shutdown_flags >> 4) & 1) ? "True" : "False",
@@ -70,7 +70,7 @@ void serial_print_vehicle_state(void) {
 }
 
 void serial_print_cooling(void) {
-	char buf[64];
+	char buf[128];
 
 	print("==COOLING==");
 	snprintf(buf, sizeof(buf),
@@ -86,12 +86,16 @@ void serial_print_driver_input(void) {
 	char buf[128];
 	print("==DRIVER INPUT==");
 	snprintf(buf,sizeof(buf),
-			"ACC_CURRENT_ADC : %u A\n"
+			"ACC_CURRENT_ADC : %lu A\n"
 			"ACC_CURRENT_REF_ADC : %u A\n"
 			"SG_REAR : %u A\n"
-			"LAUNCH_CTRL_PARAM : %u A\n"
-			"TORQUE_PERCENTAGE : %u A\n",
-			acc_current_adc, acc_current_ref_adc, sg_rear, launch_control_param, torque_percentage);
+			"LAUNCH_CTRL_PARAM : %lu A\n"
+			"TORQUE_PERCENTAGE : %lu A\n",
+			(unsigned long)acc_current_adc,
+			acc_current_ref_adc,
+			sg_rear,
+			(unsigned long)launch_control_param,
+			(unsigned long)torque_percentage);
 	print(buf);
 }
 //launch control param is undeclared in the header file???
@@ -155,8 +159,7 @@ void dump_can_data_battery() {
 	sprintf(buffer, "ACC_CURRENT_REF_ADC %u\n", acc_current_ref_adc);
 	print(buffer);
 
-	// TODO FIX, ADD FUNCTIONS TO HEADER FILE AND INCLUDE
-	snprintf(buffer, "CURRENTS READING: %fA\n", sizeof(buffer), mvolts_to_amps(raw_to_mvolts(acc_current_adc), raw_to_mvolts(acc_current_ref_adc)));
+	snprintf(buffer, sizeof(buffer), "CURRENTS READING: %dA\n", (int)mvolts_to_amps(raw_to_mvolts(acc_current_adc), raw_to_mvolts(acc_current_ref_adc)));
 	print(buffer);
 
 
@@ -167,10 +170,11 @@ void dump_can_data_battery() {
 	print(buffer);
 
 }
+
 void dump_can_data_motor_controller() {
 	//mcfault, mc temp, motor speed
 	// prints all the motor controller related info
-	char buffer[100];
+	char buffer[64];
 
 	print("MOTOR CONTROLLER INFO\n");
 
@@ -182,10 +186,10 @@ void dump_can_data_motor_controller() {
 		print(buffer);
 	}
 
-	sprintf(buffer, "MOTOR CONTROL TEMP: %uC\n", mc_temp);
+	sprintf(buffer, "MOTOR CONTROL TEMP: %u C\n", mc_temp);
 	print(buffer);
 
-	sprintf(buffer, "MOTOR SPEED: %drpm\n", motor_speed);
+	sprintf(buffer, "MOTOR SPEED: %d rpm\n", motor_speed);
 	print(buffer);
 }
 

@@ -36,7 +36,7 @@ uint8_t Serial_GetByte(Serial_t* serial)
 	return byte;
 }
 
-HAL_StatusTypeDef Serial_SendBytes(Serial_t* serial, uint8_t* bytes, uint16_t len, uint32_t timeout_ms)
+HAL_StatusTypeDef Serial_SendBytes(Serial_t* serial, const uint8_t* bytes, uint16_t len, uint32_t timeout_ms)
 {
 	return HAL_UART_Transmit(serial->h_uart, bytes, len, timeout_ms);
 }
