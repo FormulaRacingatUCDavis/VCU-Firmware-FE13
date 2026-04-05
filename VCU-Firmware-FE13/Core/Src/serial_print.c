@@ -67,7 +67,7 @@ void serial_print_vehicle_state(void) {
 
 	print(buf);
 	}
-
+}
 
 void serial_print_cooling(void) {
 	char buf[64];
@@ -190,7 +190,3 @@ void dump_can_data_motor_controller() {
 }
 
 
-
-
-
-}
