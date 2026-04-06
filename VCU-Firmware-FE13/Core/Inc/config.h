@@ -42,8 +42,31 @@
 #define MAX_POWER_MOTOR_W 60000
 #define MAX_POWER_ACCUMULATOR_W 70000
 
+// used when power smoothing is disabled, cut to 0 torque if hard limit exceeded
+// this is the old method of power limit enforcement (FE11 and prev)
+#define ACCUMULATOR_POWER_HARD_LIMIT 80000
+
+// 0 to disable power smoothing (cut to 0 torque only when hard limit exceeded),
+// 1 to use power smoothing (smooth power down if getting close to limit)
+#define POWER_SMOOTHING_ENABLED 0
+
+// smoothing paramters
 #define SMOOTHING_DOWN_TIME_MS 1500
 #define SMOOTHING_UP_TIME_MS 1500
 #define SMOOTHING_POWER_DELTA_W 10000
+
+
+// 0 to only send buttons and knobs when they change, 1 to constantly send them on every main loop
+#define ALWAYS_SEND_DRIVER_INPUTS 1
+
+// 0  to disable regen braking, 1 to enable
+#define REGEN_BRAKING_ENABLED 0
+
+// if APPS is pressed less than this threshold, attempt to regen brake
+// only used if REGEN_BRAKING_ENABLE is 1
+#define APPS_REGEN_THRESHOLD 5
+
+// 0 to disable using KNOB1 (launch control knob) to tune strength of regen braking, 1 to enable
+#define ALLOW_REGEN_KNOB_TUNING 0
 
 #endif

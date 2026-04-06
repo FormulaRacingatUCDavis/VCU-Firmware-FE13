@@ -7,6 +7,7 @@
 #include "sensors.h"
 #include "can_manager.h"
 #include "driver_input.h"
+#include "config.h"
 #include <stdlib.h>
 #include "traction_control.h"
 
@@ -19,6 +20,7 @@ volatile uint32_t torque_percentage = 0;
 volatile uint32_t launch_control_param = 0;
 volatile uint32_t prev_torque_percentage = 0;
 volatile uint32_t prev_launch_control_param = 0;
+volatile uint32_t regen_braking_param = 0;
 volatile uint32_t torque_req = 0;
 
 #define RADS_PER_RPM 0.10472
@@ -39,6 +41,8 @@ volatile uint32_t lv_battery_measure_adc = 0;
 
 uint16_t get_max_torque(uint32_t max_power);
 uint32_t get_max_power();
+int16_t get_regen_torque();
+
 //extern void Error_Handler();
 
 
@@ -176,6 +180,10 @@ void update_sensor_vals(ADC_HandleTypeDef *hadc1, ADC_HandleTypeDef *hadc3) {
 	prev_launch_control_param = launch_control_param;
     torque_percentage = get_adc_conversion(hadc1, KNOB2) * 100 / 4095;
     launch_control_param = get_adc_conversion(hadc1, KNOB1) * 100 / 4095;
+
+    if (ALLOW_REGEN_KNOB_TUNING) {
+    	regen_braking_param = get_adc_conversion(hadc1, KNOB1) * 100 / 4095;
+    }
 }
 
 void read_lv_battery(ADC_HandleTypeDef *hadc3) {
@@ -198,46 +206,50 @@ static float get_accumulator_power() {
 }
 
 int16_t requested_throttle(){
+	// variables for power smoothing
 	static uint8_t smoothing_flag = SMOOTHING_STATE_NONE; // flag that says if we are currently in a smoothing sequence
 	static uint32_t smoothing_start_tick = 0; // stores the tick that we started the smoothing sequence
 	static uint32_t smoothing_prev_max_power = 0; // the max power we had when we exceeded 70kW on the accumulator
 
     uint32_t max_power = get_max_power();
 
-    if (smoothing_flag == SMOOTHING_STATE_DOWN) { // if we are in the smoothing down sequence
-		// usually: will go from 60kW max power to 50kW max power over the course of a few seconds
+    if (POWER_SMOOTHING_ENABLED) {
+    	if (smoothing_flag == SMOOTHING_STATE_DOWN) { // if we are in the smoothing down sequence
+			// usually: will go from 60kW max power to 50kW max power over the course of a few seconds
 
-		uint32_t interval_ms = HAL_GetTick() - smoothing_start_tick;
+			uint32_t interval_ms = HAL_GetTick() - smoothing_start_tick;
 
-		if (interval_ms > SMOOTHING_DOWN_TIME_MS) { // if we have spent enough time smoothing down, can start smoothing up
-			smoothing_flag = SMOOTHING_STATE_UP;
-			smoothing_start_tick = HAL_GetTick();
-			smoothing_prev_max_power = smoothing_prev_max_power - SMOOTHING_POWER_DELTA_W;
-		} else {  // else, smooth down by a set amount of motor power (SMOOTHING_POWER_DELTA_W)
-			max_power = smoothing_prev_max_power - abs((float)interval_ms / (float)SMOOTHING_DOWN_TIME_MS) * SMOOTHING_POWER_DELTA_W;
+			if (interval_ms > SMOOTHING_DOWN_TIME_MS) { // if we have spent enough time smoothing down, can start smoothing up
+				smoothing_flag = SMOOTHING_STATE_UP;
+				smoothing_start_tick = HAL_GetTick();
+				smoothing_prev_max_power = smoothing_prev_max_power - SMOOTHING_POWER_DELTA_W;
+			} else {  // else, smooth down by a set amount of motor power (SMOOTHING_POWER_DELTA_W)
+				max_power = smoothing_prev_max_power - abs((float)interval_ms / (float)SMOOTHING_DOWN_TIME_MS) * SMOOTHING_POWER_DELTA_W;
+			}
+
+		} else if (smoothing_flag == SMOOTHING_STATE_UP) { // else, we are in the smoothing up sequence
+			// usually: will go from 50kW max power back up to 60kW max power
+
+			uint32_t interval_ms = HAL_GetTick() - smoothing_start_tick;
+
+			if (interval_ms > SMOOTHING_UP_TIME_MS) { // if we are done smoothing up, return to normal operation
+				smoothing_flag = SMOOTHING_STATE_NONE;
+				smoothing_start_tick = 0;
+				smoothing_prev_max_power = 0;
+			} else { // else gradually allow more motor power, back up to 60kW
+				max_power = max_power - (1.0 - (float)interval_ms / (float)SMOOTHING_UP_TIME_MS) * abs(max_power - smoothing_prev_max_power);
+			}
+
+			// if we exceed accumulator power on the way up, go back down again
+			if (get_accumulator_power() >= MAX_POWER_ACCUMULATOR_W) {
+				smoothing_flag = SMOOTHING_STATE_DOWN;
+				smoothing_start_tick = HAL_GetTick();
+				smoothing_prev_max_power = max_power;
+			}
+
 		}
+    } // endif power smoothing enabled
 
-	} else if (smoothing_flag == SMOOTHING_STATE_UP) { // else, we are in the smoothing up sequence
-		// usually: will go from 50kW max power back up to 60kW max power
-
-		uint32_t interval_ms = HAL_GetTick() - smoothing_start_tick;
-
-		if (interval_ms > SMOOTHING_UP_TIME_MS) { // if we are done smoothing up, return to normal operation
-			smoothing_flag = SMOOTHING_STATE_NONE;
-			smoothing_start_tick = 0;
-			smoothing_prev_max_power = 0;
-		} else { // else gradually allow more motor power, back up to 60kW
-			max_power = max_power - (1.0 - (float)interval_ms / (float)SMOOTHING_UP_TIME_MS) * abs(max_power - smoothing_prev_max_power);
-		}
-
-		// if we exceed accumulator power on the way up, go back down again
-		if (get_accumulator_power() >= MAX_POWER_ACCUMULATOR_W) {
-			smoothing_flag = SMOOTHING_STATE_DOWN;
-			smoothing_start_tick = HAL_GetTick();
-			smoothing_prev_max_power = max_power;
-		}
-
-	}
 
     uint16_t max_torque = get_max_torque(max_power);
 
@@ -246,16 +258,23 @@ int16_t requested_throttle(){
 //	if (brake.percent >= BRAKE_BSPD_THRESHOLD) return 0;
 
 
-    // MAKE EXTRA SURE 80kW accumulator power draw is not exceeded or FUSE WILL BLOW
     // if exceed power limit of 70kW, begin smoothing sequence if we haven't already
-	if (get_accumulator_power() >= MAX_POWER_ACCUMULATOR_W && smoothing_flag == SMOOTHING_STATE_NONE) {
-		smoothing_flag = SMOOTHING_STATE_DOWN;
-		smoothing_start_tick = HAL_GetTick();
-		smoothing_prev_max_power = max_power;
+    if (POWER_SMOOTHING_ENABLED) {
 
-		// just for this call, limit motor power a lot
-		max_torque = get_max_torque(max_power - SMOOTHING_POWER_DELTA_W);
-	}
+    	if (get_accumulator_power() >= MAX_POWER_ACCUMULATOR_W && smoothing_flag == SMOOTHING_STATE_NONE) {
+			smoothing_flag = SMOOTHING_STATE_DOWN;
+			smoothing_start_tick = HAL_GetTick();
+			smoothing_prev_max_power = max_power;
+
+			// just for this call, limit motor power a lot
+			max_torque = get_max_torque(max_power - SMOOTHING_POWER_DELTA_W);
+		}
+
+    } else if (get_accumulator_power() >= ACCUMULATOR_POWER_HARD_LIMIT) { // old method of power limit enforcement
+    	// MAKE EXTRA SURE 80kW accumulator power draw is not exceeded or FUSE WILL BLOW
+    	max_torque = 0;
+    }
+
 
     torque_req = (throttle1.percent * max_torque * 10) / 100;  //upscale for MC code, Nm times 10
 
@@ -264,26 +283,26 @@ int16_t requested_throttle(){
 		torque_req = TC_torque_req;
 	}
 
-//    // regenerative braking:
-//    // EV.3.3.3 The powertrain must not regenerate energy when vehicle speed is between 0 and 5 km/hr
-//    // 0.016349 comes from (60 * pi * tire_diameter) / (FDR * 63360) where 63360 is conversion factor
-//    // 1.60934 is converting mph to kph
-//    float car_speed_kph = abs(motor_speed) * 0.016349 * 1.60934;
-//    // State of charge should also be below 95%, prevent overcharging accumulator
-//    if (throttle1.percent < DEADZONE_PERCENTAGE && car_speed_kph > 5 && soc < 95) {
-//    	// negative torque request for regen braking
-//    	float current_term = 30; // 40.5 amps max regen current
-//    	float acc_voltage_volt = pack_voltage * 0.018 + 180;
-//    	float voltage_term = abs(acc_voltage_volt);
-//    	float rpm_term = abs(motor_speed);
-//
-//    	// TODO TEMPORARY: uses launch control knob to change intrusiveness of regen braking
-//    	// TODO TEMPORARY: using launch control knob: (launch_control_param / 100.0) *
-//    	int16_t regen_torque = (int16_t)( -1*voltage_term * current_term / (0.10472 * rpm_term) );
-//
-//    	return clamp(regen_torque*10, -90*10, 0); // max 90 Nm on regen
-//    }
 
+
+    // regenerative braking
+    if (REGEN_BRAKING_ENABLED) {
+
+    	// EV.3.3.3 The powertrain must not regenerate energy when vehicle speed is between 0 and 5 km/hr
+		// 0.016349 comes from (60 * pi * tire_diameter) / (FDR * 63360) where 63360 is conversion factor
+		// 1.60934 is converting mph to kph
+		float car_speed_kph = abs(motor_speed) * 0.016349 * 1.60934;
+
+
+		// State of charge should also be below 95%, prevent overcharging accumulator
+		if (throttle1.percent < APPS_REGEN_THRESHOLD && car_speed_kph > 5 && soc < 95) {
+			// negative torque request for regen braking
+			int16_t regen_torque = get_regen_torque();
+
+			return clamp(regen_torque*10, -90*10, 0); // max 90 Nm on regen
+		}
+
+    }
 
     return (uint16_t)torque_req;
 }
@@ -317,6 +336,21 @@ uint16_t get_max_torque(uint32_t max_power){
 	else {
 		return (uint16_t)max_torque_power;
 	}
+}
+
+int16_t get_regen_torque() {
+	float current_term = 30; // 40.5 amps max regen current
+	float acc_voltage_volt = pack_voltage * 0.018 + 180;
+	float voltage_term = abs(acc_voltage_volt);
+	float rpm_term = abs(motor_speed);
+
+	int16_t regen_torque = (int16_t)( -1*voltage_term * current_term / (0.10472 * rpm_term) );
+
+	if (ALLOW_REGEN_KNOB_TUNING) {
+		regen_torque = (regen_braking_param / 100.0) * regen_torque;
+	}
+
+	return regen_torque;
 }
 
 bool sensors_calibrated(){

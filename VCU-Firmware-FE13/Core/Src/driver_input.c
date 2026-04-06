@@ -67,16 +67,16 @@ void on_button_enabled(button_id_t enabled_id) {
 				dashboard_display_mode = DISPLAY_DRIVE; // just in case, default to drive display mode
 			}
 
-			can_tx_knobs(&hcan1);
+			can_tx_buttons_and_knobs(&hcan1);
 			break;
 		case TC_BUTTON:
-			can_tx_knobs(&hcan1);
+			can_tx_buttons_and_knobs(&hcan1);
 			break;
 		case MARKER_BUTTON:
-			can_tx_knobs(&hcan1);
+			can_tx_buttons_and_knobs(&hcan1);
 			break;
 		case OVERTAKE_BUTTON:
-			can_tx_knobs(&hcan1);
+			can_tx_buttons_and_knobs(&hcan1);
 
 			// if in debug mode, use overtake button for cooling loop override
 			if (is_button_enabled(DEBUG_BUTTON)) {
@@ -98,16 +98,16 @@ void on_button_enabled(button_id_t enabled_id) {
 void on_button_disabled(button_id_t disabled_id) {
 	switch (disabled_id) {
 		case DEBUG_BUTTON:
-			can_tx_knobs(&hcan1);
+			can_tx_buttons_and_knobs(&hcan1);
 			break;
 		case TC_BUTTON:
-			can_tx_knobs(&hcan1);
+			can_tx_buttons_and_knobs(&hcan1);
 			break;
 		case MARKER_BUTTON:
-			can_tx_knobs(&hcan1);
+			can_tx_buttons_and_knobs(&hcan1);
 			break;
 		case OVERTAKE_BUTTON:
-			can_tx_knobs(&hcan1);
+			can_tx_buttons_and_knobs(&hcan1);
 			break;
 		default:
 	}

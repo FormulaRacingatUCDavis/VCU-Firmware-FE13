@@ -231,10 +231,10 @@ int main(void)
   //	//  }
   //	}
 
-	// send knob percents to raspi display on change
-	if (torque_percentage != prev_torque_percentage ||
-		launch_control_param != prev_launch_control_param) {
-		can_tx_knobs(&hcan1);
+	// send driver inputs to raspi on change OR if configured to constantly send
+	if (ALWAYS_SEND_DRIVER_INPUTS ||
+		(torque_percentage != prev_torque_percentage || launch_control_param != prev_launch_control_param) ) {
+		can_tx_buttons_and_knobs(&hcan1);
 	}
 
 	switch (state) {

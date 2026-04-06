@@ -377,7 +377,7 @@ void can_clear_MC_fault(CAN_HandleTypeDef *hcan) {
 	}
 }
 
-void can_tx_knobs(CAN_HandleTypeDef *hcan) {
+void can_tx_buttons_and_knobs(CAN_HandleTypeDef *hcan) {
 //	uint16_t torque_limit_raw = (uint16_t)(torque_percentage / 100 * 4095);
 //	uint16_t launch_control_param_raw = (uint16_t)(launch_control_param / 100 * 4095);
 	uint8_t practice_mode_bit = dashboard_display_mode; // 00 = drive, 01 = debug, 10 = practice;
@@ -397,7 +397,6 @@ void can_tx_knobs(CAN_HandleTypeDef *hcan) {
 		};
 		CAN_Send(hcan, 0x501, data, 8);
 }
-
 
 void can_tx_throttle_raw(CAN_HandleTypeDef *hcan) {
 	TxHeader.IDE = CAN_ID_STD;
