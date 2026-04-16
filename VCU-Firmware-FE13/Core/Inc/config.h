@@ -39,8 +39,11 @@
 // drivetrain efficiency, n_drv = 0.9 (90%)
 // max power draw from motor, p_motor = p_acc * n_drv = 80kW * 0.9 = 72kW
 // leave some gap, use a number lower than 72kW
-#define MAX_POWER_MOTOR_W 60000
-#define MAX_POWER_ACCUMULATOR_W 70000
+#define MAX_POWER_MOTOR_W 60000 // TODO: tune this maybe
+
+// used for power limiter
+// if AC power hits this value, "dip" the motor power down
+#define MAX_POWER_ACCUMULATOR_W 60000 // 75000 max for performance // TODO: tune this
 
 // used when power smoothing is disabled, cut to 0 torque if hard limit exceeded
 // this is the old method of power limit enforcement (FE11 and prev)
@@ -50,16 +53,16 @@
 // 1 to use power smoothing (smooth power down if getting close to limit)
 #define POWER_SMOOTHING_ENABLED 0
 
-// smoothing paramters
-#define SMOOTHING_DOWN_TIME_MS 1500
-#define SMOOTHING_UP_TIME_MS 1500
-#define SMOOTHING_POWER_DELTA_W 10000
+// smoothing parameters
+#define SMOOTHING_DOWN_TIME_MS 1000 // TODO: tune this
+#define SMOOTHING_UP_TIME_MS 1000 // TODO: tune this
+#define SMOOTHING_POWER_DELTA_W 7000 // TODO: tune this
 
 
 // 0 to only send buttons and knobs when they change, 1 to constantly send them on every main loop
 #define ALWAYS_SEND_DRIVER_INPUTS 1
 
-// 0  to disable regen braking, 1 to enable
+// 0 to disable regen braking, 1 to enable
 #define REGEN_BRAKING_ENABLED 0
 
 // if APPS is pressed less than this threshold, attempt to regen brake
@@ -67,6 +70,6 @@
 #define APPS_REGEN_THRESHOLD 5
 
 // 0 to disable using KNOB1 (launch control knob) to tune strength of regen braking, 1 to enable
-#define ALLOW_REGEN_KNOB_TUNING 0
+#define ALLOW_REGEN_KNOB_TUNING 1
 
 #endif
