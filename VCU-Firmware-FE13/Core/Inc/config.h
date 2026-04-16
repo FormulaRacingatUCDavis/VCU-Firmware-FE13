@@ -51,7 +51,7 @@
 
 // 0 to disable power smoothing (cut to 0 torque only when hard limit exceeded),
 // 1 to use power smoothing (smooth power down if getting close to limit)
-#define POWER_SMOOTHING_ENABLED 0
+#define POWER_SMOOTHING_ENABLED 1
 
 // smoothing parameters
 #define SMOOTHING_DOWN_TIME_MS 1000 // TODO: tune this
