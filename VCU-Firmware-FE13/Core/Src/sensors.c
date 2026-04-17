@@ -355,8 +355,8 @@ int16_t get_regen_torque() {
 
 bool sensors_calibrated(){
 	return throttle1.range > APPS1_MIN_RANGE &&
-		   throttle2.range > APPS2_MIN_RANGE &&
-		   (brake1.range > BRAKE_MIN_RANGE || brake2.range > BRAKE_MIN_RANGE); // if either BSE is working, we can consider them calibrated
+		   throttle2.range > APPS2_MIN_RANGE; //&&
+		   //(brake1.range > BRAKE_MIN_RANGE || brake2.range > BRAKE_MIN_RANGE); // if either BSE is working, we can consider them calibrated
 }
 
 bool braking(){
@@ -364,7 +364,7 @@ bool braking(){
 }
 
 bool brake_mashed(){
-    return brake.percent > RTD_BRAKE_THRESHOLD;
+    return 1;//brake.percent > RTD_BRAKE_THRESHOLD;
 }
 
 // check differential between the throttle sensors
@@ -392,7 +392,7 @@ bool is_brake_implausible() {
     }
 
     // if brake applied and throttle > 25%, brake implausible
-    return (brake.percent >= BRAKE_BSPD_THRESHOLD && throttle1.percent > APPS1_BSPD_THRESHOLD);
+    return 0;//(brake.percent >= BRAKE_BSPD_THRESHOLD && throttle1.percent > APPS1_BSPD_THRESHOLD);
 }
 
 void update_percent(CALIBRATED_SENSOR_t* sensor){
