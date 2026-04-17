@@ -216,20 +216,20 @@ int main(void)
 	}
 
 	//if hard BSPD trips in any state
-	if (!HAL_GPIO_ReadPin(HARD_BSPD_GPIO_Port, HARD_BSPD_Pin)) {
-	  report_fault(HARD_BSPD);
-	}
+//	if (!HAL_GPIO_ReadPin(HARD_BSPD_GPIO_Port, HARD_BSPD_Pin)) {
+//	  report_fault(HARD_BSPD);
+//	}
 
 	if (mc_fault) {
 	  report_fault(MC_FAULT);
 	}
 
-  //	if (mc_fault) {
-  //		can_clear_MC_fault(&hcan1);
-  //	//  if (mc_fault_clear_success) {
-  //		// init_fault_cleared = 1;
-  //	//  }
-  //	}
+//  	if (!init_fault_cleared && mc_fault) {
+//  		can_clear_MC_fault(&hcan1);
+//  	  if (mc_fault_clear_success) {
+//  		 init_fault_cleared = 1;
+//  	  }
+//  	}
 
 	// send driver inputs to raspi on change OR if configured to constantly send
 	if (ALWAYS_SEND_DRIVER_INPUTS ||
