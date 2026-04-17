@@ -47,7 +47,7 @@
 
 // used when power smoothing is disabled, cut to 0 torque if hard limit exceeded
 // this is the old method of power limit enforcement (FE11 and prev)
-#define ACCUMULATOR_POWER_HARD_LIMIT 80000
+#define ACCUMULATOR_POWER_HARD_LIMIT 75000
 
 // 0 to disable power smoothing (cut to 0 torque only when hard limit exceeded),
 // 1 to use power smoothing (smooth power down if getting close to limit)
