@@ -203,6 +203,7 @@ int main(void)
 	can_tx_vcu_state(&hcan2); // for telemnode
 	can_tx_torque_request(&hcan1);
 	can_tx_throttle_raw(&hcan1);
+    can_tx_power(&hcan1);
 
 
 	// traction control // TODO ADD BACK ONCE WHEEL SPEEDS HAVE BEEN FIGURED OUT
