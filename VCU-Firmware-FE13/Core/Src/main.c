@@ -413,7 +413,6 @@ int main(void)
 	  }
 
 	//HAL_GPIO_TogglePin(HEARTBEAT_GPIO_Port, HEARTBEAT_Pin);
-	HAL_Delay(10);
   }
   /* USER CODE END 3 */
 }
