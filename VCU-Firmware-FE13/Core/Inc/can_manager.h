@@ -38,7 +38,7 @@ typedef enum {
 	COOLING_LOOP_PRESSURES = 0x402,
 	STRAIN_GAUGE_REAR = 0x403,
 	MC_INTERNAL_CURRENTS = 0x0A6,
-	THROTTLE_RAW = 0x502,
+	PEDALS_RAW = 0x502,
 	MC_AC_POWER = 0x504
 } CAN_ID;
 
@@ -88,7 +88,7 @@ void can_tx_disable_MC(CAN_HandleTypeDef *hcan);
 void can_clear_MC_fault(CAN_HandleTypeDef *hcan);
 void can_tx_sg(CAN_HandleTypeDef *hcan, uint16_t adc);
 void can_tx_buttons_and_knobs(CAN_HandleTypeDef *hcan);
-void can_tx_throttle_raw(CAN_HandleTypeDef *hcan);
+void can_tx_pedals_raw(CAN_HandleTypeDef *hcan);
 void can_tx_power(CAN_HandleTypeDef *hcan);
 
 // might want to have all the tx functions use this more generic function

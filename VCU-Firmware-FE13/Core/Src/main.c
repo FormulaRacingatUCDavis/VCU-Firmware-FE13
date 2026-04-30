@@ -200,9 +200,8 @@ int main(void)
 
 	// Transmit CAN messages
 	can_tx_vcu_state(&hcan1);
-	can_tx_vcu_state(&hcan2); // for telemnode
 	can_tx_torque_request(&hcan1);
-	can_tx_throttle_raw(&hcan1);
+	can_tx_pedals_raw(&hcan2);
     can_tx_power(&hcan1);
 
 

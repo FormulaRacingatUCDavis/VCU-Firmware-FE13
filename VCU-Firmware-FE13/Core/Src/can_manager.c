@@ -400,17 +400,21 @@ void can_tx_buttons_and_knobs(CAN_HandleTypeDef *hcan) {
 		CAN_Send(hcan, 0x501, data, 8);
 }
 
-void can_tx_throttle_raw(CAN_HandleTypeDef *hcan) {
+void can_tx_pedals_raw(CAN_HandleTypeDef *hcan) {
 	TxHeader.IDE = CAN_ID_STD;
-	TxHeader.StdId = THROTTLE_RAW;
+	TxHeader.StdId = PEDALS_RAW;
 	TxHeader.RTR = CAN_RTR_DATA;
-	TxHeader.DLC = 4;
+	TxHeader.DLC = 8;
 
-	uint8_t data[4] = {
+	uint8_t data[8] = {
 			throttle1.raw >> 8,
 			throttle1.raw & 0xFF,
 			throttle2.raw >> 8,
 			throttle2.raw & 0xFF,
+			brake1.raw >> 8,
+			brake1.raw & 0xFF,
+			brake2.raw >> 8,
+			brake2.raw & 0xFF
 	};
 
 	if (HAL_CAN_AddTxMessage(hcan, &TxHeader, data, &TxMailbox) != HAL_OK)
