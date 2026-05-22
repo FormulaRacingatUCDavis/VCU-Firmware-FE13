@@ -202,7 +202,7 @@ int main(void)
 	can_tx_vcu_state(&hcan1);
 	can_tx_torque_request(&hcan1);
 	can_tx_pedals_raw(&hcan2);
-  can_tx_power(&hcan1);
+    can_tx_power(&hcan1);
 
 
 	// traction control // TODO ADD BACK ONCE WHEEL SPEEDS HAVE BEEN FIGURED OUT
@@ -412,7 +412,6 @@ int main(void)
 	  }
 
 	//HAL_GPIO_TogglePin(HEARTBEAT_GPIO_Port, HEARTBEAT_Pin);
-	HAL_Delay(1);
   }
   /* USER CODE END 3 */
 }
