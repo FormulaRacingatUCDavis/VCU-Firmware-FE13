@@ -25,7 +25,7 @@
 
 //in raw ADC:
 #define APPS_SHORT_THRESH 3900   //~4.75V
-#define APPS_OPEN_THRESH 50     //~0.19V
+#define APPS_OPEN_THRESH 125     //~0.19V
 
 #define BRAKE_LIGHT_THRESHOLD 400
 #define RTD_BRAKE_THRESHOLD 50  //brake threshold to enter drive mode
