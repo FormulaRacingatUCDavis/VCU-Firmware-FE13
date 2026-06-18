@@ -29,7 +29,7 @@
 
 #define BRAKE_LIGHT_THRESHOLD 400
 #define RTD_BRAKE_THRESHOLD 50  //brake threshold to enter drive mode
-#define BRAKE_BSPD_THRESHOLD 30
+#define BRAKE_BSPD_THRESHOLD 75
 
 #define MAX_TORQUE_NM 220  //220 Nm
 
