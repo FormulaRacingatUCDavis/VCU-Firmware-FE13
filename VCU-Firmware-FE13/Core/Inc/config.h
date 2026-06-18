@@ -63,7 +63,7 @@
 #define ALWAYS_SEND_DRIVER_INPUTS 1
 
 // 0 to disable regen braking, 1 to enable
-#define REGEN_BRAKING_ENABLED 0
+#define REGEN_BRAKING_ENABLED 1
 
 // if APPS is pressed less than this threshold, attempt to regen brake
 // only used if REGEN_BRAKING_ENABLE is 1
