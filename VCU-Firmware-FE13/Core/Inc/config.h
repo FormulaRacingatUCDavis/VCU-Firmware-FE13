@@ -25,11 +25,11 @@
 
 //in raw ADC:
 #define APPS_SHORT_THRESH 3900   //~4.75V
-#define APPS_OPEN_THRESH 150     //~0.19V
+#define APPS_OPEN_THRESH 125     //~0.19V
 
 #define BRAKE_LIGHT_THRESHOLD 400
 #define RTD_BRAKE_THRESHOLD 50  //brake threshold to enter drive mode
-#define BRAKE_BSPD_THRESHOLD 30
+#define BRAKE_BSPD_THRESHOLD 75
 
 #define MAX_TORQUE_NM 220  //220 Nm
 
@@ -39,11 +39,11 @@
 // drivetrain efficiency, n_drv = 0.9 (90%)
 // max power draw from motor, p_motor = p_acc * n_drv = 80kW * 0.9 = 72kW
 // leave some gap, use a number lower than 72kW
-#define MAX_POWER_MOTOR_W 60000 // TODO: tune this maybe
+#define MAX_POWER_MOTOR_W 70000 // TODO: tune this maybe
 
 // used for power limiter
 // if AC power hits this value, "dip" the motor power down
-#define MAX_POWER_ACCUMULATOR_W 60000 // 75000 max for performance // TODO: tune this
+#define MAX_POWER_ACCUMULATOR_W 70000 // 75000 max for performance // TODO: tune this
 
 // used when power smoothing is disabled, cut to 0 torque if hard limit exceeded
 // this is the old method of power limit enforcement (FE11 and prev)
